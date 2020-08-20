@@ -1,0 +1,79 @@
+<!-- WebExec is web-based filter, where form data are posted to one of the
+     servers/urls configured in this config file and specific command is
+     executed on server-side which receives the form data on stdin and its
+     stdout is "streamed" back to the client.
+
+     This tools is written by Ondrej Holecek <ondrej@holecek.eu> and it is
+     licensed under "BSD 3-Clause License" (see "LICENSE" file in sources).
+-->
+
+<webexec>
+
+	<!-- "ip" and "port" is the address where the server will be listening,
+	     but specifying port 443 does not enable HTTPs automatically - you
+	     must also specify SSL key and certificate files!
+	     IP "0.0.0.0" automatically listens on all available interfaces.
+
+	     "timeout" specifies the maximum allowed time in seconds to receive
+	     all data from client, if set to 0 there is no timeout.
+
+	     There can be many servers listening on different IP/port,
+	     mixing HTTP and HTTPs servers is possible.
+	-->
+	     
+	<server ip="0.0.0.0" port="443" key="streamservice.key" cert="streamservice.crt" timeout="60">
+
+		<!-- "url" is specific for the server and there can be many urls
+		     with different paths and configuration
+		-->
+		<url path="/fgt2pcap">
+			<!-- "field" specifies the "name" of the specific MIME part
+			     found in "Content-Disposition" header for that part.
+			     
+			     Many fields can be specified, but be aware that the contents
+			     from all of them (if found in request) is concatenated!     
+			     
+			     Content-Type from main header must be "multipart/form-data"
+			--> 
+			<field>Wireshark_FileInput</field>
+			<field>Wireshark_TextInput</field>
+
+			<!-- Content-Type header of the HTTP response -->
+			<contentType>application/octet-stream</contentType>
+
+			<!-- Command to execute - on stdin it should expect the form data
+			     and its stdout is "streamed" back to client.
+
+			     Optional attributes:
+			       - "shell"  - If specified, command is executed in that shell using -c parameter.
+			                    If not specified, the command is executed directly, however in such case
+			                    it is not possible to give additional parameters using the "shell" way,
+			                    instead the first part must be path to the executable and then <param>
+			                    elements specify the parameters, one by one - see next server/url for example.
+			       - "user"   - Run command as specified user (use current one if not specified).
+			       - "group"  - Run command as specified group (use current one if not specified).
+			       - "chroot" - Run command with alternative root (use global one if not specified).
+			                    Be careful that running in chroot usually requires to copy some additional
+			                    libraries to the alterantive root director structure!
+			-->
+			<command shell="/bin/sh">/root/sniftran --in /dev/stdin --out /dev/stdout</command>
+		</url>
+	</server>
+
+	<!-- Example server using cleartext HTTP with /plain service running "cat"
+	     with parameters to number the lines and disable output buffering.
+
+	     Also chroot and different UID/GUI is specified for the "cat" command.
+	-->
+	<server ip="0.0.0.0" port="80" timeout="60">
+		<url path="/plain">
+			<field>Wireshark_FileInput</field>
+			<field>Wireshark_TextInput</field>
+			<contentType>text/plain</contentType>
+			<command user="nobody" group="nogroup" chroot="/opt/cat">/usr/bin/cat
+				<param>-n</param>
+				<param>-u</param>
+			</command>
+		</url>
+	</server>
+</webexec>

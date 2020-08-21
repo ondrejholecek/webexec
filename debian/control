@@ -1,0 +1,17 @@
+Source: webexec
+Section: unknown
+Priority: optional
+Maintainer: Ondrej Holecek <ondrej@holecek.eu>
+Build-Depends: debhelper (>=11~), dh-systemd (>= 1.5)
+Standards-Version: 4.1.4
+Homepage: https://github.com/ondrejholecek/webexec
+
+Package: webexec
+Architecture: amd64
+Multi-Arch: foreign
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Executes command on server with form data on stdin and stream stdout realtime back to client.
+ WebExec is web-based filter, where form data are posted to one of the
+ servers/urls configured in this config file and specific command is
+ executed on server-side which receives the form data on stdin and its
+ stdout is "streamed" back to the client.

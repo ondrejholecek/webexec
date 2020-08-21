@@ -1,0 +1,11 @@
+[Unit]
+Description=Web-based command execution
+After=remote-fs.target nss-user-lookup.target
+
+[Service]
+ExecStart=/usr/bin/webexec -c /etc/webexec.xml
+KillMode=process
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
